@@ -9,6 +9,7 @@ $(document).ready(function(){
   
   $("#inpFile").on('change', function(){
     getMetadataTag();
+    getAudioDuration(document.querySelector('#inpFile').files[0]);
   });
 });
 
@@ -104,17 +105,28 @@ function checkUpload()
   },5000);
 }
 
-function getAudioDuration(file, callback)
+function getAudioDuration(file)
 {
-    var audio = new Audio();
-    var urlObject = URL.createObjectURL(file);
-    audio.src = urlObject;
-    
+  var audio = new Audio();
+  var urlObject = URL.createObjectURL(file);
+  audio.src = urlObject;
+  
+  var prom = new Promise(function(resolve, reject){
     $(audio).on('canplaythrough', function(e){
       var milliseconds = e.currentTarget.duration*1000;
-      var lenght = milliseconds.toString().replace(/\.\S+/ig, "");
-      callback(lenght);
+      var len = milliseconds.toString().replace(/\.\S+/ig, "");  
+      resolve(len);    
     });
+  });
+  var some = "";
+  prom.then(function(lenght)
+  {
+    alert("Promice " + lenght);
+    some = lenght;
+  }).catch(function(error){
+    alert(error);
+  });
+  return some;
 }
 
 function addToFirestore()
@@ -124,11 +136,8 @@ function addToFirestore()
   var title = songName[1];  
   var pictureUrl = $("#inpImagesUrl").val();
   var songUrl = $("#inpMusicUrl").val();
-  var songLenght = "";
-  getAudioDuration(document.querySelector('#inpFile').files[0], function(lenght){
-    songLenght = lenght;
-  });
-  alert(songLenght);
+  var songLenght = getAudioDuration(document.querySelector('#inpFile').files[0]);
+alert("songlenght " + songLenght);
 }
 
 

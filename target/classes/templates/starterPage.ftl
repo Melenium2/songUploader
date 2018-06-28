@@ -25,6 +25,7 @@
   <input type="hidden" id="inpImg" />
   <input type="hidden" id="inpImagesUrl" />
   <input type="hidden" id="inpMusicUrl" />
+  
 </div>
 
   <script type="text/javascript">

@@ -9,6 +9,7 @@ $(document).ready(function(){
   
   $("#inpFile").on('change', function(){
     getMetadataTag();
+    getAudioDuration(document.querySelector('#inpFile').files[0]);
   });
 });
 
@@ -104,31 +105,49 @@ function checkUpload()
   },5000);
 }
 
-function getAudioDuration(file, callback)
+function getAudioDuration(file)
 {
-    var audio = new Audio();
-    var urlObject = URL.createObjectURL(file);
-    audio.src = urlObject;
-    
-    var len $(audio).on('canplaythrough', function(e){
-      var milliseconds = e.currentTarget.duration*1000;
-      var lenght = milliseconds.toString().replace(/\.\S+/ig, "");
-      callback(lenght);
-    });
+  var audio = new Audio();
+  var urlObject = URL.createObjectURL(file);
+  audio.src = urlObject;
+
+  $(audio).on('canplaythrough', function(e){
+    var milliseconds = e.currentTarget.duration*1000;
+    var len = milliseconds.toString().replace(/\.\S+/ig, "");  
+    $("#inpMusicLenght").val(len);
+  });
 }
 
 function addToFirestore()
 {
   var songName = $("#inpSongpath").prop('placeholder').split(" - ");
-  var artist = songName[0];
-  var title = songName[1];  
-  var pictureUrl = $("#inpImagesUrl").val();
-  var songUrl = $("#inpMusicUrl").val();
-  var songLenght = "";
-  getAudioDuration(document.querySelector('#inpFile').files[0], function(lenght){
-    songLenght = lenght;
+  var json = {};
+  
+  json["artist"] = songName[0];
+  json["title"] = songName[1];  
+  json["songLenght"] = $("#inpMusicLenght").val();
+  json["pictureUrl"] = $("#inpImagesUrl").val();
+  json["songUrl"] = $("#inpMusicUrl").val();
+  
+  ajaxToServer(json).then(function(result){
+    
+  }).catch(function(error){
+    
   });
-  alert(songLenght);
+}
+
+function ajaxToServer(json)
+{
+  return new Promise(function(resolve, reject){
+    var options = { type: 'POST', 
+                    contentType: 'application/json', 
+                    url: "url",
+                    data: JSON.stringify(json), 
+                    dataType: 'json',
+                    cache: false,
+                    timeout: 60000  };
+    $.ajax(options).done(function(resolve)).fail(reject);
+  });
 }
 
 
