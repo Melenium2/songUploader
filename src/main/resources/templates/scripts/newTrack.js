@@ -1,15 +1,29 @@
 $(document).ready(function(){
-  
+    
   $("#loaderForm").submit(function(event){
     event.preventDefault();
-    uploadAuidio();
-    uploadPicture();
-    checkUpload();
+    if(document.querySelector('#inpFile').files[0] == null)
+    {
+      $("#errorMessage").text("Chose audio file");
+      $("#btnErrorModal").trigger('click');
+    }
+    else if(document.querySelector('#inpFile').files[0].type != 'audio/mp3')
+    {
+      $("#errorMessage").text("Wrong audio type");
+      $("#btnErrorModal").trigger('click');
+    }
+    else
+    {
+      uploadAuidio();
+      uploadPicture();
+      checkUpload();
+    }
   });
   
   $("#inpFile").on('change', function(){
     getMetadataTag();
     getAudioDuration(document.querySelector('#inpFile').files[0]);
+    alert(document.querySelector('#inpFile').files[0].type);
   });
 });
 
@@ -48,15 +62,11 @@ function upload(file, path)
 function uploadAuidio()
 {
   var file = document.querySelector('#inpFile').files[0];
-  console.log("File = " + file);
-  console.log("Song name = " + "Music/" + $("#inpSongpath").prop('placeholder'));
   upload(file, "Music/" + $("#inpSongpath").prop('placeholder'));
 }
 
 function uploadPicture()
 {
-  console.log("Picture = " + "fsdfsdf");
-  console.log("Picture name = " + "Images/" + $("#inpSongpath").prop('placeholder'));
   upload($("#inpImg").val(), "Images/" + $("#inpSongpath").prop('placeholder'));
 }
 
@@ -123,16 +133,23 @@ function addToFirestore()
   var songName = $("#inpSongpath").prop('placeholder').split(" - ");
   var json = {};
   
-  json["artist"] = songName[0];
-  json["title"] = songName[1];  
-  json["songLenght"] = $("#inpMusicLenght").val();
-  json["pictureUrl"] = $("#inpImagesUrl").val();
-  json["songUrl"] = $("#inpMusicUrl").val();
+  json["songArtist"] = songName[0];
+  json["songTitle"] = songName[1];  
+  json["songDuration"] = $("#inpMusicLenght").val();
+  json["songPath"] = $("#inpImagesUrl").val();
+  json["songPicture"] = $("#inpMusicUrl").val();
   
   ajaxToServer(json).then(function(result){
     
+      $.each(result, function(key, value){
+        if (value === 'Success'){
+          $("#btnModal").trigger('click');
+        }
+      });
+      
   }).catch(function(error){
-    
+      $("#errorMessage").text(error);
+      $("#btnErrorModal").trigger('click');
   });
 }
 
@@ -141,12 +158,12 @@ function ajaxToServer(json)
   return new Promise(function(resolve, reject){
     var options = { type: 'POST', 
                     contentType: 'application/json', 
-                    url: "url",
+                    url: "/store",
                     data: JSON.stringify(json), 
                     dataType: 'json',
                     cache: false,
                     timeout: 60000  };
-    $.ajax(options).done(function(resolve)).fail(reject);
+    $.ajax(options).done(resolve).fail(reject);
   });
 }
 

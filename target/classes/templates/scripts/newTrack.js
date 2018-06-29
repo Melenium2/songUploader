@@ -1,15 +1,24 @@
 $(document).ready(function(){
-  
+    
   $("#loaderForm").submit(function(event){
     event.preventDefault();
-    uploadAuidio();
-    uploadPicture();
-    checkUpload();
+    if(document.querySelector('#inpFile').files[0] == null)
+    {
+      $("#errorMessage").text("Chose audio file");
+      $("#btnErrorModal").trigger('click');
+    }
+    else if(document.querySelector('#inpFile').files[0].type != 'audio/mp3')
+    {
+      uploadAuidio();
+      uploadPicture();
+      checkUpload();
+    }
   });
   
   $("#inpFile").on('change', function(){
     getMetadataTag();
     getAudioDuration(document.querySelector('#inpFile').files[0]);
+    alert(document.querySelector('#inpFile').files[0].type);
   });
 });
 
@@ -48,15 +57,11 @@ function upload(file, path)
 function uploadAuidio()
 {
   var file = document.querySelector('#inpFile').files[0];
-  console.log("File = " + file);
-  console.log("Song name = " + "Music/" + $("#inpSongpath").prop('placeholder'));
   upload(file, "Music/" + $("#inpSongpath").prop('placeholder'));
 }
 
 function uploadPicture()
 {
-  console.log("Picture = " + "fsdfsdf");
-  console.log("Picture name = " + "Images/" + $("#inpSongpath").prop('placeholder'));
   upload($("#inpImg").val(), "Images/" + $("#inpSongpath").prop('placeholder'));
 }
 
@@ -110,34 +115,51 @@ function getAudioDuration(file)
   var audio = new Audio();
   var urlObject = URL.createObjectURL(file);
   audio.src = urlObject;
-  
-  var prom = new Promise(function(resolve, reject){
-    $(audio).on('canplaythrough', function(e){
-      var milliseconds = e.currentTarget.duration*1000;
-      var len = milliseconds.toString().replace(/\.\S+/ig, "");  
-      resolve(len);    
-    });
+
+  $(audio).on('canplaythrough', function(e){
+    var milliseconds = e.currentTarget.duration*1000;
+    var len = milliseconds.toString().replace(/\.\S+/ig, "");  
+    $("#inpMusicLenght").val(len);
   });
-  var some = "";
-  prom.then(function(lenght)
-  {
-    alert("Promice " + lenght);
-    some = lenght;
-  }).catch(function(error){
-    alert(error);
-  });
-  return some;
 }
 
 function addToFirestore()
 {
   var songName = $("#inpSongpath").prop('placeholder').split(" - ");
-  var artist = songName[0];
-  var title = songName[1];  
-  var pictureUrl = $("#inpImagesUrl").val();
-  var songUrl = $("#inpMusicUrl").val();
-  var songLenght = getAudioDuration(document.querySelector('#inpFile').files[0]);
-alert("songlenght " + songLenght);
+  var json = {};
+  
+  json["songArtist"] = songName[0];
+  json["songTitle"] = songName[1];  
+  json["songDuration"] = $("#inpMusicLenght").val();
+  json["songPath"] = $("#inpImagesUrl").val();
+  json["songPicture"] = $("#inpMusicUrl").val();
+  
+  ajaxToServer(json).then(function(result){
+    
+      $.each(result, function(key, value){
+        if (value === 'Success'){
+          $("#btnModal").trigger('click');
+        }
+      });
+      
+  }).catch(function(error){
+      $("#errorMessage").text(error);
+      $("#btnErrorModal").trigger('click');
+  });
+}
+
+function ajaxToServer(json)
+{
+  return new Promise(function(resolve, reject){
+    var options = { type: 'POST', 
+                    contentType: 'application/json', 
+                    url: "/store",
+                    data: JSON.stringify(json), 
+                    dataType: 'json',
+                    cache: false,
+                    timeout: 60000  };
+    $.ajax(options).done(resolve).fail(reject);
+  });
 }
 
 

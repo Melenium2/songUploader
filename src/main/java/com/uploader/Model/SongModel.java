@@ -3,15 +3,15 @@ package com.uploader.Model;
 public class SongModel
 {
     private String songArtist;
-    private String sontTitle;
+    private String songTitle;
     private Long songDuration;
     private String songPath;
     private String songPicture;
 
-    public SongModel(String songArtist, String sontTitle, Long songDuration, String songPath, String songPicture)
+    public SongModel(String songArtist, String songTitle, Long songDuration, String songPath, String songPicture)
     {
         this.songArtist = songArtist;
-        this.sontTitle = sontTitle;
+        this.songTitle = songTitle;
         this.songDuration = songDuration;
         this.songPath = songPath;
         this.songPicture = songPicture;
@@ -28,12 +28,12 @@ public class SongModel
         this.songArtist = songArtist;
     }
 
-    public String getSontTitle() {
-        return sontTitle;
+    public String getSongTitle() {
+        return songTitle;
     }
 
-    public void setSontTitle(String sontTitle) {
-        this.sontTitle = sontTitle;
+    public void setSongTitle(String songTitle) {
+        this.songTitle = songTitle;
     }
 
     public Long getSongDuration() {

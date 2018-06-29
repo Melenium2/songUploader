@@ -19,12 +19,6 @@ public class StarterPageController
     @GetMapping
     public String getStarterPage()
     {
-        Map<String, Object> data = new HashMap<>();
-        data.put("name", "Leonard");
-        data.put("age", "18");
-
-        //fsHelper.addDataToFirestore(data);
-        //fsHelper.addDataToCloud();
         return "starterPage";
     }
 }

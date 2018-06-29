@@ -12,6 +12,7 @@ import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
+import com.uploader.Model.SongModel;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
@@ -36,47 +37,22 @@ public class FirestoreService
 
         FirebaseApp.initializeApp(options);
         Firestore db = FirestoreClient.getFirestore();
-        docRef = db.collection("sample").document();
+        docRef = db.collection("Music").document();
     }
 
-    public void addDataToFirestore(Map<String, Object> model)
+    public boolean addDataToFirestore(SongModel model)
     {
         ApiFuture<WriteResult> result = docRef.set(model);
         try {
-            System.out.println(result.get().getUpdateTime());
+            if (result.get().getUpdateTime() != null)
+            {
+                return true;
+            }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+            return false;
         }
+        return false;
     }
 
-    public void addDataToCloud()
-    {
-
-    }
-
-    /**
-     * Выцепляем картинку из методанных в js далее аплоадим картинку и аудио в storage
-     * (желательно показывать прогресс) Далее передаем управление на сервер
-     * где мы уже знаем все данные которые необходимо и записываем их в облако
-     *
-     * https://www.npmjs.com/package/jsmediatags
-     * https://stackoverflow.com/questions/29881237/how-can-i-get-the-cover-of-an-mp3-file
-     */
-
-    /**
-     * Данные все получилось достать осталось только объединить и отправить в ДБt
-     */
-
-    /**
-     * на сайте выбираем файл с музыкой
-     * 1) Показываем название
-     * 2) Показываем картинку если есть и если я обнаружу как это длетьа иначе забить!
-     * 3) Показываем путь к файлу
-     * далее передаем на сервер
-     * 1) В любом случае нужно выцепить методанные как то
-     * 2) Сохранить песню в фаерстор
-     * 3) Сохранить картинку в фаер стор
-     * 4) Отображать прогресс загрузки пользователю
-     * 5) Когда получим все данные сохранить в базу данных
-     */
 }
